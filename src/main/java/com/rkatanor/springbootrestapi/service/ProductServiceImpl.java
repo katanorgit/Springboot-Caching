@@ -3,6 +3,9 @@ package com.rkatanor.springbootrestapi.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.rkatanor.springbootrestapi.exceptions.ProductFoundException;
@@ -21,12 +24,15 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	@Cacheable(cacheNames="products")
 	public List<Product> getListOfProducts() {
 		// TODO Auto-generated method stub
+		System.out.println("connecting to repo");
 		return productRepository.findAll();
 	}
 
 	@Override
+	@Cacheable(cacheNames = "products",key = "#id")
 	public Product getProductById(int id) {
 		// TODO Auto-generated method stub
 		return productRepository.findById(id)
@@ -35,6 +41,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	@CacheEvict(value = "products",allEntries = true)
 	public void addProduct(Product product) {
 		// TODO Auto-generated method stub
 		if (productRepository.existsById(product.getId())) {
@@ -44,6 +51,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	@CacheEvict(cacheNames = "products",key = "#id",allEntries = true)
 	public void purgeProduct(int id) {
 		// TODO Auto-generated method stub
 		if (productRepository.existsById(id)) {
